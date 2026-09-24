@@ -69,6 +69,8 @@ function btec_appointments_load_files()
     require_once BTEC_APPOINTMENTS_PATH . 'includes/Public/class-booking.php';
 
     require_once BTEC_APPOINTMENTS_PATH . 'includes/Repositories/class-appointment-repository.php';
+	require_once BTEC_APPOINTMENTS_PATH .
+    'includes/Database/class-database.php';
 }
 
 /*
@@ -94,6 +96,20 @@ function btec_appointments_init()
         $admin->init();
     }
 }
+
+register_activation_hook(
+    __FILE__,
+    function () {
+
+        $database = new BTEC_Appointment_Database();
+        $database->install();
+
+        update_option(
+            'btec_appointments_version',
+            BTEC_APPOINTMENTS_VERSION
+        );
+    }
+);
 
 add_action(
     'plugins_loaded',
