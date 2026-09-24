@@ -31,6 +31,7 @@ function btec_os_init()
     require_once BTEC_OS_PATH . 'includes/Admin/class-order-admin.php';
     require_once BTEC_OS_PATH . 'includes/Admin/class-order-menu.php';
     require_once BTEC_OS_PATH . 'includes/Controllers/class-order-controller.php';
+	require_once BTEC_CORE_PATH . 'includes/Core/class-sequence-manager.php';
     require_once BTEC_OS_PATH . 'includes/Repositories/class-order-repository.php';
     require_once BTEC_OS_PATH . 'includes/Models/class-order.php';
     require_once BTEC_OS_PATH . 'includes/Database/class-database.php';
@@ -47,12 +48,20 @@ function btec_os_init()
 register_activation_hook(__FILE__, function () {
 
     if (!btec_os_check_dependencies()) {
-        return;
+        wp_die(
+            'O plugin BTEC Core precisa estar ativo antes de ativar Ordens de Serviço.'
+        );
     }
+
+    require_once BTEC_OS_PATH . 'includes/Database/class-database.php';
 
     $db = new BTEC_Order_Database();
     $db->install();
 
+    update_option(
+        'btec_os_version',
+        BTEC_OS_VERSION
+    );
 });
 
 add_action('plugins_loaded', 'btec_os_init', 30);
