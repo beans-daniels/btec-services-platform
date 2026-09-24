@@ -25,6 +25,7 @@ class BTEC_Appointment_Menu
 
     public function render()
     {
-        echo '<div class="wrap"><h1>Agendamentos</h1><p>Módulo em desenvolvimento.</p></div>';
+        $admin = new BTEC_Appointment_Admin();
+        $admin->render();
     }
 }
