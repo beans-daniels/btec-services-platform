@@ -101,6 +101,9 @@ register_activation_hook(
     __FILE__,
     function () {
 
+        require_once BTEC_APPOINTMENTS_PATH .
+            'includes/Database/class-database.php';
+
         $database = new BTEC_Appointment_Database();
         $database->install();
 

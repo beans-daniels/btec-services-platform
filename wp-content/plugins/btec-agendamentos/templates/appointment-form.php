@@ -140,7 +140,7 @@ if (!defined('ABSPATH')) {
                   <input
 						type="time"
 						name="scheduled_time"
-						step="900"
+						step="300"
 						required
 					>
 

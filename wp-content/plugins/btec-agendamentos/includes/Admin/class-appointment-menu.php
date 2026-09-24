@@ -1,27 +1,25 @@
 <?php
 
-if (!defined('ABSPATH')) {
-    exit;
-}
+if (!defined('ABSPATH')) exit;
 
 class BTEC_Appointment_Menu
 {
     public function init()
     {
-        add_action('admin_menu', [$this, 'register_menu']);
+        add_action('admin_menu', [$this, 'register_menu'], 20);
     }
 
     public function register_menu()
-    {
-        add_submenu_page(
-            'btec-dashboard',
-            'Agendamentos',
-            'Agendamentos',
-            'view_btec_clients',
-            'btec-agendamentos',
-            [$this, 'render']
-        );
-    }
+		{
+			add_submenu_page(
+				'btec-platform',
+				'Agendamentos',
+				'Agendamentos',
+				'read',
+				'btec-agendamentos',
+				[$this, 'render']
+			);
+		}
 
     public function render()
     {

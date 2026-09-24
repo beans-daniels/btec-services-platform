@@ -8,6 +8,8 @@ class BTEC_Activator
     {
         require_once BTEC_CORE_PATH . 'includes/Database/class-database.php';
 		require_once BTEC_CORE_PATH . 'includes/Database/class-database.php';
+		require_once BTEC_CORE_PATH . 'includes/Core/class-capabilities.php';
+		BTEC_Capabilities::register();
 
         $database = new BTEC_Database();
         $database->install();

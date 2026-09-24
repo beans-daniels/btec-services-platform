@@ -20,16 +20,19 @@ class BTEC_Appointment_Repository
     public function create($data)
     {
         global $wpdb;
-
+    
         $number = BTEC_Sequence_Manager::next(
             $data['company_id'],
             'appointments'
         );
-
+    
         if (!$number) {
-            return false;
+            return new WP_Error(
+                'sequence_error',
+                'Não foi possível gerar o número do agendamento.'
+            );
         }
-
+    
         $insert = [
             'company_id'      => $data['company_id'],
             'client_id'       => $data['client_id'],
@@ -45,13 +48,24 @@ class BTEC_Appointment_Repository
             'created_at'      => current_time('mysql'),
             'updated_at'      => current_time('mysql')
         ];
-
-        $result = $wpdb->insert($this->table, $insert);
-
-        if (!$result) {
-            return false;
+    
+        $result = $wpdb->insert(
+            $this->table,
+            $insert,
+            [
+                '%d','%d','%s','%s','%s',
+                '%s','%s','%s','%s','%s',
+                '%d','%s','%s'
+            ]
+        );
+    
+        if ($result === false) {
+            return new WP_Error(
+                'db_error',
+                $wpdb->last_error ?: 'Erro desconhecido ao gravar o agendamento.'
+            );
         }
-
+    
         return $wpdb->insert_id;
     }
 
@@ -76,14 +90,21 @@ class BTEC_Appointment_Repository
     public function get_all($company_id)
     {
         global $wpdb;
-
+    
+        $clients = $wpdb->prefix . 'btec_clients';
+    
         return $wpdb->get_results(
             $wpdb->prepare(
-                "SELECT *
-                 FROM {$this->table}
-                 WHERE company_id = %d
-                 ORDER BY scheduled_date ASC,
-                          scheduled_time ASC",
+                "SELECT
+                    a.*,
+                    c.name AS client_name,
+                    c.code AS client_code
+                 FROM {$this->table} a
+                 INNER JOIN {$clients} c
+                    ON c.id = a.client_id
+                 WHERE a.company_id = %d
+                 ORDER BY a.scheduled_date ASC,
+                          a.scheduled_time ASC",
                 $company_id
             )
         );

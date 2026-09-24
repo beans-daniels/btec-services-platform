@@ -6,12 +6,8 @@ if (!defined('ABSPATH')) {
 
 class BTEC_Appointment_Admin
 {
-    private $repository;
-
     public function init()
 	{
-		$this->repository = new BTEC_Appointment_Repository();
-
 		add_action(
 			'admin_init',
 			[$this, 'handle_create']
@@ -20,38 +16,49 @@ class BTEC_Appointment_Admin
 
 	public function handle_create()
 	{
-		if (!is_admin()) {
-			return;
-		}
+    if (!is_admin()) {
+        return;
+    }
 
-		if (!isset($_POST['btec_appointment_action'])) {
-			return;
-		}
+    if (!isset($_POST['btec_appointment_action'])) {
+        return;
+    }
 
-		if ($_POST['btec_appointment_action'] !== 'create') {
-			return;
-		}
+    if ($_POST['btec_appointment_action'] !== 'create') {
+        return;
+    }
 
-		check_admin_referer(
-			'btec_create_appointment',
-			'btec_nonce'
-		);
+    check_admin_referer(
+        'btec_create_appointment',
+        'btec_nonce'
+    );
 
-		$controller = new BTEC_Appointment_Controller();
+    $data = [
+        'client_id'       => absint($_POST['client_id']),
+        'service_type'    => sanitize_text_field($_POST['service_type']),
+        'service_target'  => sanitize_text_field($_POST['service_target'] ?? ''),
+        'scheduled_date'  => sanitize_text_field($_POST['scheduled_date']),
+        'scheduled_time'  => sanitize_text_field($_POST['scheduled_time']),
+        'notes'           => sanitize_textarea_field($_POST['notes']),
+        'company_id'      => 1,
+    ];
 
-		$result = $controller->create($_POST);
+    $controller = new BTEC_Appointment_Controller();
 
-		if ($result) {
+    $result = $controller->create($data);
 
-			wp_safe_redirect(
-				admin_url(
-					'admin.php?page=btec-agendamentos'
-				)
-			);
+    if (is_wp_error($result)) {
+        wp_die($result->get_error_message());
+    }
 
-			exit;
-		}
+    wp_safe_redirect(
+        admin_url(
+            'admin.php?page=btec-agendamentos&message=created'
+        )
+    );
+    exit;
 	}
+	
 
     public function render()
     {
@@ -67,13 +74,15 @@ class BTEC_Appointment_Admin
         $this->render_list();
     }
 
-    private function render_list()
-    {
-        $appointments = [];
+	private function render_list()
+	{
+		$repository = new BTEC_Appointment_Repository();
 
-        require BTEC_APPOINTMENTS_PATH .
-            'templates/appointments-list.php';
-    }
+		$appointments = $repository->get_all(1);
+
+		require BTEC_APPOINTMENTS_PATH .
+			'templates/appointments-list.php';
+	}
 
     private function render_form()
     {
