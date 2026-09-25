@@ -1,28 +1,40 @@
 <?php
 
-if (!defined('ABSPATH')) exit;
+if (!defined('ABSPATH')) {
+    exit;
+}
 
 class BTEC_Order
 {
     public static function get_equipment_types()
     {
         return [
-            'desktop'  => 'Desktop',
-            'notebook' => 'Notebook',
-            'macos'    => 'macOS',
-            'printer'  => 'Impressora',
-            'other'    => 'Outro',
+            'desktop'      => 'Desktop',
+            'notebook'     => 'Notebook',
+            'macos'        => 'macOS',
+            'printer'      => 'Impressora',
+            'server'       => 'Servidor',
+            'network'      => 'Equipamento de Rede',
+            'other'        => 'Outro',
         ];
+    }
+
+    public static function get_equipment_label($type)
+    {
+        $items = self::get_equipment_types();
+
+        return $items[$type] ?? 'Outro';
     }
 
     public static function get_statuses()
     {
         return [
-            'open'      => 'Aberta',
-            'service'   => 'Em Atendimento',
-            'waiting'   => 'Aguardando',
-            'completed' => 'Finalizada',
-            'cancelled' => 'Cancelada',
+            'open'        => 'Aberta',
+            'progress'    => 'Em atendimento',
+            'waiting'     => 'Aguardando',
+            'completed'   => 'Finalizada',
+            'delivered'   => 'Entregue',
+            'cancelled'   => 'Cancelada',
         ];
     }
 
@@ -31,12 +43,5 @@ class BTEC_Order
         $items = self::get_statuses();
 
         return $items[$status] ?? $status;
-    }
-
-    public static function get_equipment_label($type)
-    {
-        $items = self::get_equipment_types();
-
-        return $items[$type] ?? $type;
     }
 }

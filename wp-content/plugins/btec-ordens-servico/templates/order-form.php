@@ -2,162 +2,362 @@
 
 <div class="wrap">
 
-<h1 class="wp-heading-inline">
-Nova Ordem de Serviço
-</h1>
+    <h1 class="wp-heading-inline">
 
-<a href="<?php echo admin_url('admin.php?page=btec-ordens-servico'); ?>"
-class="page-title-action">
-Voltar
-</a>
+        <?php echo $order ? 'Ordem de Serviço' : 'Nova Ordem de Serviço'; ?>
 
-<hr class="wp-header-end">
+    </h1>
 
-<div class="btec-card">
+    <a href="<?php echo admin_url('admin.php?page=btec-ordens-servico'); ?>"
+       class="page-title-action">
 
-<form method="post">
+        Voltar
 
-<input type="hidden"
-name="btec_order_action"
-value="create">
+    </a>
 
-<?php wp_nonce_field(
-'btec_create_order',
-'btec_nonce'
-); ?>
+    <hr class="wp-header-end">
 
-<table class="form-table">
+    <div class="btec-card">
 
-<tr>
+        <form method="post">
 
-<th>Cliente</th>
+            <input type="hidden"
+                   name="btec_order_action"
+                   value="<?php echo $order ? 'update' : 'create'; ?>">
 
-<td>
+            <?php if ($order): ?>
 
-<select name="client_id" required>
+                <input type="hidden"
+                       name="order_id"
+                       value="<?php echo esc_attr($order->id); ?>">
 
-<option value="">Selecione...</option>
+                <?php wp_nonce_field('btec_update_order','btec_nonce'); ?>
 
-<?php foreach ($clients as $client): ?>
+            <?php else: ?>
 
-<option value="<?php echo $client->id; ?>">
+                <?php wp_nonce_field('btec_create_order','btec_nonce'); ?>
 
-<?php echo esc_html($client->code.' • '.$client->name); ?>
+            <?php endif; ?>
 
-</option>
+            <!-- CABEÇALHO -->
 
-<?php endforeach; ?>
+            <div class="btec-header">
 
-</select>
+                <div>
 
-</td>
+                    <span class="label">Número</span>
 
-</tr>
+                    <h2>
 
-<tr>
+                        <?php echo $order ? esc_html($order->number) : 'Será gerado automaticamente'; ?>
 
-<th>Equipamento</th>
+                    </h2>
 
-<td>
+                </div>
 
-<select name="equipment_type" required>
+                <?php if ($order): ?>
 
-<?php foreach ($equipment as $k=>$v): ?>
+                <div class="status-box">
 
-<option value="<?php echo $k; ?>">
+                    <label>Status</label>
 
-<?php echo esc_html($v); ?>
+                    <select name="status">
 
-</option>
+                        <?php foreach ($statuses as $k=>$v): ?>
 
-<?php endforeach; ?>
+                            <option value="<?php echo $k; ?>"
+                                <?php selected($order->status,$k); ?>>
 
-</select>
+                                <?php echo esc_html($v); ?>
 
-</td>
+                            </option>
 
-</tr>
+                        <?php endforeach; ?>
 
-<tr>
+                    </select>
 
-<th>Marca</th>
+                </div>
 
-<td>
+                <?php endif; ?>
 
-<input type="text"
-name="brand"
-class="regular-text">
+            </div>
 
-</td>
+            <!-- CLIENTE -->
 
-</tr>
+            <h3>Cliente</h3>
 
-<tr>
+            <?php if (!$order): ?>
 
-<th>Modelo</th>
+                <select name="client_id" required>
 
-<td>
+                    <option value="">Selecione...</option>
 
-<input type="text"
-name="model"
-class="regular-text">
+                    <?php foreach ($clients as $client): ?>
 
-</td>
+                        <option value="<?php echo $client->id; ?>">
 
-</tr>
+                            <?php echo esc_html($client->code.' • '.$client->name); ?>
 
-<tr>
+                        </option>
 
-<th>Nº Série</th>
+                    <?php endforeach; ?>
 
-<td>
+                </select>
 
-<input type="text"
-name="serial_number"
-class="regular-text">
+            <?php else: ?>
 
-</td>
+                <input type="hidden"
+                       name="client_id"
+                       value="<?php echo esc_attr($order->client_id); ?>">
 
-</tr>
+                <div class="readonly">
 
-<tr>
+                    <strong><?php echo esc_html($order->client_name); ?></strong>
 
-<th>Defeito Informado</th>
+                    <br>
 
-<td>
+                    <?php echo esc_html($order->client_code); ?>
 
-<textarea
-name="reported_defect"
-rows="5"
-class="large-text"
-required></textarea>
+                </div>
 
-</td>
+            <?php endif; ?>
 
-</tr>
+            <!-- EQUIPAMENTO -->
 
-</table>
+            <h3>Equipamento</h3>
 
-<p class="submit">
+            <div class="grid">
 
-<button class="button button-primary button-large">
-Salvar Ordem de Serviço
-</button>
+                <div>
 
-</p>
+                    <label>Tipo</label>
 
-</form>
+                    <select name="equipment_type">
 
-</div>
+                        <?php foreach ($equipment as $k=>$v): ?>
+
+                            <option value="<?php echo $k; ?>"
+                                <?php selected($order->equipment_type ?? '',$k); ?>>
+
+                                <?php echo esc_html($v); ?>
+
+                            </option>
+
+                        <?php endforeach; ?>
+
+                    </select>
+
+                </div>
+
+                <div>
+
+                    <label>Marca</label>
+
+                    <input type="text"
+                           name="brand"
+                           value="<?php echo esc_attr($order->brand ?? ''); ?>">
+
+                </div>
+
+                <div>
+
+                    <label>Modelo</label>
+
+                    <input type="text"
+                           name="model"
+                           value="<?php echo esc_attr($order->model ?? ''); ?>">
+
+                </div>
+
+                <div>
+
+                    <label>Nº Série</label>
+
+                    <input type="text"
+                           name="serial_number"
+                           value="<?php echo esc_attr($order->serial_number ?? ''); ?>">
+
+                </div>
+
+            </div>
+
+            <!-- DEFEITO -->
+
+            <h3>Defeito informado</h3>
+
+            <textarea name="reported_defect"
+                      rows="4"
+                      required><?php echo esc_textarea($order->reported_defect ?? ''); ?></textarea>
+
+            <!-- DIAGNÓSTICO -->
+
+            <h3>Diagnóstico Técnico</h3>
+
+            <textarea name="diagnosis"
+                      rows="5"><?php echo esc_textarea($order->diagnosis ?? ''); ?></textarea>
+
+            <!-- SOLUÇÃO -->
+
+            <h3>Solução Aplicada</h3>
+
+            <textarea name="solution"
+                      rows="5"><?php echo esc_textarea($order->solution ?? ''); ?></textarea>
+
+            <!-- VALORES -->
+
+            <h3>Valores</h3>
+
+            <div class="grid values">
+
+                <div>
+
+                    <label>Mão de obra</label>
+
+                    <input type="number"
+                           step="0.01"
+                           id="labor"
+                           name="labor_value"
+                           value="<?php echo esc_attr($order->labor_value ?? 0); ?>">
+
+                </div>
+
+                <div>
+
+                    <label>Peças</label>
+
+                    <input type="number"
+                           step="0.01"
+                           id="parts"
+                           name="parts_value"
+                           value="<?php echo esc_attr($order->parts_value ?? 0); ?>">
+
+                </div>
+
+                <div>
+
+                    <label>Total</label>
+
+                    <input type="number"
+                           step="0.01"
+                           id="total"
+                           name="total_value"
+                           readonly
+                           value="<?php echo esc_attr($order->total_value ?? 0); ?>">
+
+                </div>
+
+            </div>
+
+            <p class="submit">
+
+                <button class="button button-primary button-large">
+
+                    <?php echo $order ? 'Salvar Alterações' : 'Criar Ordem de Serviço'; ?>
+
+                </button>
+
+            </p>
+
+        </form>
+
+    </div>
 
 </div>
 
 <style>
+
 .btec-card{
-background:#fff;
-padding:24px;
-border-radius:12px;
-max-width:900px;
-box-shadow:0 1px 3px rgba(0,0,0,.08);
+    background:#fff;
+    padding:24px;
+    border-radius:12px;
+    max-width:1000px;
+    box-shadow:0 1px 3px rgba(0,0,0,.08);
 }
+
+.btec-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:end;
+    margin-bottom:24px;
+}
+
+.btec-header .label{
+    color:#64748b;
+    font-size:12px;
+}
+
+.status-box{
+    width:220px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin-bottom:20px;
+}
+
+.values{
+    grid-template-columns:repeat(3,1fr);
+}
+
+.readonly{
+    background:#f8fafc;
+    border:1px solid #e5e7eb;
+    border-radius:8px;
+    padding:14px;
+    margin-bottom:20px;
+}
+
+textarea,
+input,
+select{
+    width:100%;
+}
+
+@media(max-width:768px){
+
+    .grid,
+    .values{
+        grid-template-columns:1fr;
+    }
+
+    .btec-header{
+        flex-direction:column;
+        align-items:start;
+        gap:16px;
+    }
+
+    .status-box{
+        width:100%;
+    }
+
+}
+
 </style>
+
+<script>
+
+document.addEventListener('DOMContentLoaded',()=>{
+
+    const labor=document.getElementById('labor');
+    const parts=document.getElementById('parts');
+    const total=document.getElementById('total');
+
+    function calc(){
+
+        const l=parseFloat(labor.value)||0;
+        const p=parseFloat(parts.value)||0;
+
+        total.value=(l+p).toFixed(2);
+
+    }
+
+    labor.addEventListener('input',calc);
+    parts.addEventListener('input',calc);
+
+    calc();
+
+});
+
+</script>

@@ -13,10 +13,14 @@ class BTEC_Order_Controller
         $this->repository = new BTEC_Order_Repository();
     }
 
+    /**
+     * Cria uma nova OS
+     */
     public function create($data)
     {
         $payload = [
             'company_id'      => 1,
+            'appointment_id'  => $data['appointment_id'] ?? null,
             'client_id'       => absint($data['client_id']),
             'equipment_type'  => sanitize_text_field($data['equipment_type']),
             'brand'           => sanitize_text_field($data['brand']),
@@ -29,29 +33,62 @@ class BTEC_Order_Controller
 
         return $this->repository->create($payload);
     }
-    
+
+    /**
+     * Atualiza uma OS existente
+     */
+    public function update($id, $data)
+    {
+        $payload = [
+            'equipment_type'  => sanitize_text_field($data['equipment_type']),
+            'brand'           => sanitize_text_field($data['brand']),
+            'model'           => sanitize_text_field($data['model']),
+            'serial_number'   => sanitize_text_field($data['serial_number']),
+            'reported_defect' => sanitize_textarea_field($data['reported_defect']),
+            'diagnosis'       => sanitize_textarea_field($data['diagnosis']),
+            'solution'        => sanitize_textarea_field($data['solution']),
+            'status'          => sanitize_text_field($data['status']),
+            'labor_value'     => (float) $data['labor_value'],
+            'parts_value'     => (float) $data['parts_value'],
+            'total_value'     => (float) $data['labor_value'] +
+                                 (float) $data['parts_value'],
+        ];
+
+        return $this->repository->update($id, $payload);
+    }
+
+    /**
+     * Abre uma OS
+     */
+    public function find($id)
+    {
+        return $this->repository->find($id);
+    }
+
+    /**
+     * Converte Agendamento → OS
+     */
     public function create_from_appointment($appointment_id)
     {
         global $wpdb;
-    
-        $appointments = $wpdb->prefix . 'btec_appointments';
-    
+
         $appointment = $wpdb->get_row(
             $wpdb->prepare(
-                "SELECT * FROM {$appointments} WHERE id=%d",
+                "SELECT *
+                 FROM {$wpdb->prefix}btec_appointments
+                 WHERE id=%d",
                 $appointment_id
             )
         );
-    
+
         if (!$appointment) {
             return new WP_Error(
                 'appointment_not_found',
                 'Agendamento não encontrado.'
             );
         }
-    
-        $payload = [
-            'company_id'      => $appointment->company_id,
+
+        return $this->create([
             'appointment_id'  => $appointment->id,
             'client_id'       => $appointment->client_id,
             'equipment_type'  => $appointment->service_type,
@@ -59,10 +96,6 @@ class BTEC_Order_Controller
             'model'           => '',
             'serial_number'   => '',
             'reported_defect' => $appointment->notes,
-            'status'          => 'open',
-            'created_by'      => get_current_user_id(),
-        ];
-    
-        return $this->repository->create($payload);
+        ]);
     }
 }

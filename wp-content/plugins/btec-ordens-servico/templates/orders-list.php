@@ -30,7 +30,8 @@
                 <th>Número</th>
                 <th>Cliente</th>
                 <th>Equipamento</th>
-                <th>Status</th>
+                <th style="width:120px;">Status</th>
+                <th style="width:120px;">Ações</th>
             </tr>
         </thead>
 
@@ -47,35 +48,52 @@
 				<?php else : ?>
 
 				<?php foreach ($orders as $order) : ?>
+				
 
 				<tr>
 
-				<td>
-				<strong><?php echo esc_html($order->number); ?></strong>
-				</td>
-
-				<td>
-				<strong><?php echo esc_html($order->client_name); ?></strong><br>
-				<small><?php echo esc_html($order->client_code); ?></small>
-				</td>
-
-				<td>
-				<?php echo esc_html(
-				BTEC_Order::get_equipment_label($order->equipment_type)
-				); ?>
-				</td>
-
-				<td>
-
-				<span class="btec-status status-<?php echo esc_attr($order->status); ?>">
-
-				<?php echo esc_html(
-				BTEC_Order::get_status_label($order->status)
-				); ?>
-
-				</span>
-
-				</td>
+    				<td>
+        				<strong><?php echo esc_html($order->number); ?></strong>
+    				</td>
+    
+    				<td>
+        				<strong><?php echo esc_html($order->client_name); ?></strong><br>
+        				<small><?php echo esc_html($order->client_code); ?></small>
+    				</td>
+    
+    				<td>
+        				<?php echo esc_html(
+        				BTEC_Order::get_equipment_label($order->equipment_type)
+        				); ?>
+    				</td>
+    
+    				<td>
+    
+        				<span class="btec-status status-<?php echo esc_attr($order->status); ?>">
+        
+        				<?php echo esc_html(
+        				BTEC_Order::get_status_label($order->status)
+        				); ?>
+        
+        				</span>
+    
+    				</td>
+    				
+    				<td>
+                    
+                        <a href="<?php echo esc_url(
+                            admin_url(
+                                'admin.php?page=btec-ordens-servico' .
+                                '&action=edit' .
+                                '&order_id=' . $order->id
+                            )
+                        ); ?>" class="button button-small">
+                    
+                            Editar
+                    
+                        </a>
+                    
+                    </td>
 
 				</tr>
 
