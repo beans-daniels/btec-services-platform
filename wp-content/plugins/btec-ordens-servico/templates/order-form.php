@@ -205,48 +205,127 @@
 
             <!-- VALORES -->
 
-            <h3>Valores</h3>
+			<h3>Peças Utilizadas</h3>
 
-            <div class="grid values">
+			<table class="widefat striped" id="items-table">
 
-                <div>
+				<thead>
 
-                    <label>Mão de obra</label>
+					<tr>
+						<th>Descrição</th>
+						<th style="width:90px;">Qtd</th>
+						<th style="width:130px;">Unitário</th>
+						<th style="width:130px;">Subtotal</th>
+						<th style="width:60px;"></th>
+					</tr>
 
-                    <input type="number"
-                           step="0.01"
-                           id="labor"
-                           name="labor_value"
-                           value="<?php echo esc_attr($order->labor_value ?? 0); ?>">
+				</thead>
 
-                </div>
+				<tbody id="items-body">
 
-                <div>
+					<tr>
 
-                    <label>Peças</label>
+						<td>
+							<input type="text" name="item_description[]">
+						</td>
 
-                    <input type="number"
-                           step="0.01"
-                           id="parts"
-                           name="parts_value"
-                           value="<?php echo esc_attr($order->parts_value ?? 0); ?>">
+						<td>
+							<input type="number"
+								   class="qty"
+								   name="item_quantity[]"
+								   step="1"
+								   value="1">
+						</td>
 
-                </div>
+						<td>
+							<input type="number"
+								   class="price"
+								   name="item_price[]"
+								   step="0.01"
+								   value="0">
+						</td>
 
-                <div>
+						<td>
+							<input type="text"
+								   class="subtotal"
+								   readonly
+								   value="0.00">
+						</td>
 
-                    <label>Total</label>
+						<td>
 
-                    <input type="number"
-                           step="0.01"
-                           id="total"
-                           name="total_value"
-                           readonly
-                           value="<?php echo esc_attr($order->total_value ?? 0); ?>">
+							<button type="button"
+									class="button remove-row">
 
-                </div>
+								×
 
-            </div>
+							</button>
+
+						</td>
+
+					</tr>
+
+				</tbody>
+
+			</table>
+
+			<p>
+
+				<button type="button"
+						id="add-item"
+						class="button">
+
+					+ Adicionar peça
+
+				</button>
+
+			</p>
+
+			<hr>
+
+			<h3>Resumo Financeiro</h3>
+
+			<div class="grid values">
+
+				<div>
+
+					<label>Mão de obra</label>
+
+					<input type="number"
+						   step="0.01"
+						   id="labor"
+						   name="labor_value"
+						   value="<?php echo esc_attr($order->labor_value ?? 0); ?>">
+
+				</div>
+
+				<div>
+
+					<label>Total das peças</label>
+
+					<input type="number"
+						   step="0.01"
+						   id="parts"
+						   name="parts_value"
+						   readonly
+						   value="<?php echo esc_attr($order->parts_value ?? 0); ?>">
+
+				</div>
+
+				<div>
+
+					<label>Total Geral</label>
+
+					<input type="number"
+						   step="0.01"
+						   id="total"
+						   name="total_value"
+						   readonly
+						   value="<?php echo esc_attr($order->total_value ?? 0); ?>">
+
+				</div>
+
+			</div>
 
             <p class="submit">
 
@@ -340,23 +419,94 @@ select{
 
 document.addEventListener('DOMContentLoaded',()=>{
 
+    const body=document.getElementById('items-body');
+
     const labor=document.getElementById('labor');
     const parts=document.getElementById('parts');
     const total=document.getElementById('total');
 
-    function calc(){
+    function recalc(){
 
-        const l=parseFloat(labor.value)||0;
-        const p=parseFloat(parts.value)||0;
+        let pieces=0;
 
-        total.value=(l+p).toFixed(2);
+        body.querySelectorAll('tr').forEach(row=>{
+
+            const qty=row.querySelector('.qty');
+            const price=row.querySelector('.price');
+            const sub=row.querySelector('.subtotal');
+
+            const q=parseFloat(qty.value)||0;
+            const p=parseFloat(price.value)||0;
+
+            const s=q*p;
+
+            sub.value=s.toFixed(2);
+
+            pieces+=s;
+
+        });
+
+        parts.value=pieces.toFixed(2);
+
+        const laborValue=parseFloat(labor.value)||0;
+
+        total.value=(laborValue+pieces).toFixed(2);
 
     }
 
-    labor.addEventListener('input',calc);
-    parts.addEventListener('input',calc);
+    function bindRow(row){
 
-    calc();
+        row.querySelector('.qty')
+            .addEventListener('input',recalc);
+
+        row.querySelector('.price')
+            .addEventListener('input',recalc);
+
+        row.querySelector('.remove-row')
+            .addEventListener('click',()=>{
+
+                if(body.rows.length>1){
+
+                    row.remove();
+
+                    recalc();
+
+                }
+
+            });
+
+    }
+
+    body.querySelectorAll('tr').forEach(bindRow);
+
+    document.getElementById('add-item')
+        .addEventListener('click',()=>{
+
+            const clone=body.rows[0].cloneNode(true);
+
+            clone.querySelectorAll('input').forEach(input=>{
+
+                if(
+                    input.classList.contains('qty')
+                ){
+                    input.value=1;
+                }else{
+                    input.value='';
+                }
+
+            });
+
+            clone.querySelector('.subtotal').value='0.00';
+
+            body.appendChild(clone);
+
+            bindRow(clone);
+
+        });
+
+    labor.addEventListener('input',recalc);
+
+    recalc();
 
 });
 

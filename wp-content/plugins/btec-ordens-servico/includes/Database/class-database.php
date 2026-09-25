@@ -43,6 +43,28 @@ class BTEC_Order_Database
 
         $wpdb->query($sql);
 
+        $items_table = $wpdb->prefix . 'btec_order_items';
+
+        $sql_items = "CREATE TABLE IF NOT EXISTS {$items_table} (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            order_id BIGINT UNSIGNED NOT NULL,
+            description VARCHAR(150) NOT NULL,
+            quantity DECIMAL(10,2) NOT NULL DEFAULT 1.00,
+            unit_price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+            total_price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+            PRIMARY KEY (id),
+            KEY idx_order (order_id)
+
+        ) {$charset};";
+
+        $wpdb->query($sql_items);
+
+        if ($wpdb->last_error) {
+            error_log('BTEC ORDER ITEMS: ' . $wpdb->last_error);
+        }
+
         // Registra a sequência OS
         $seq_table = $wpdb->prefix . 'btec_sequences';
 

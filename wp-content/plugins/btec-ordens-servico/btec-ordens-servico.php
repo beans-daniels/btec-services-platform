@@ -33,6 +33,7 @@ function btec_os_init()
     require_once BTEC_OS_PATH . 'includes/Controllers/class-order-controller.php';
 	require_once BTEC_CORE_PATH . 'includes/Core/class-sequence-manager.php';
     require_once BTEC_OS_PATH . 'includes/Repositories/class-order-repository.php';
+	require_once BTEC_OS_PATH . 'includes/Repositories/class-order-item-repository.php';
     require_once BTEC_OS_PATH . 'includes/Models/class-order.php';
     require_once BTEC_OS_PATH . 'includes/Database/class-database.php';
 

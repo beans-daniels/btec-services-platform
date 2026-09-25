@@ -125,52 +125,41 @@ class BTEC_Order_Admin
      * Dados do formulário
      */
     private function get_form_data()
-    {
-        return [
+	{
+		$items = [];
 
-            'client_id' => absint($_POST['client_id']),
+		if (!empty($_POST['item_description'])) {
 
-            'equipment_type' => sanitize_text_field(
-                $_POST['equipment_type']
-            ),
+			foreach ($_POST['item_description'] as $i => $desc) {
 
-            'brand' => sanitize_text_field(
-                $_POST['brand']
-            ),
+				$items[] = [
+					'description' => sanitize_text_field($desc),
+					'quantity'    => floatval($_POST['item_quantity'][$i]),
+					'unit_price'  => floatval($_POST['item_price'][$i]),
+				];
 
-            'model' => sanitize_text_field(
-                $_POST['model']
-            ),
+			}
 
-            'serial_number' => sanitize_text_field(
-                $_POST['serial_number']
-            ),
+		}
 
-            'reported_defect' => sanitize_textarea_field(
-                $_POST['reported_defect']
-            ),
+		return [
+			'client_id'       => absint($_POST['client_id']),
+			'equipment_type'  => sanitize_text_field($_POST['equipment_type']),
+			'brand'           => sanitize_text_field($_POST['brand']),
+			'model'           => sanitize_text_field($_POST['model']),
+			'serial_number'   => sanitize_text_field($_POST['serial_number']),
+			'reported_defect' => sanitize_textarea_field($_POST['reported_defect']),
+			'diagnosis'       => sanitize_textarea_field($_POST['diagnosis'] ?? ''),
+			'solution'        => sanitize_textarea_field($_POST['solution'] ?? ''),
+			'status'          => sanitize_text_field($_POST['status'] ?? 'open'),
+			'labor_value'     => floatval($_POST['labor_value'] ?? 0),
+			'parts_value'     => floatval($_POST['parts_value'] ?? 0),
+			'total_value'     => floatval($_POST['total_value'] ?? 0),
 
-            'diagnosis' => sanitize_textarea_field(
-                $_POST['diagnosis'] ?? ''
-            ),
-
-            'solution' => sanitize_textarea_field(
-                $_POST['solution'] ?? ''
-            ),
-
-            'status' => sanitize_text_field(
-                $_POST['status'] ?? 'open'
-            ),
-
-            'labor_value' => floatval(
-                $_POST['labor_value'] ?? 0
-            ),
-
-            'parts_value' => floatval(
-                $_POST['parts_value'] ?? 0
-            ),
-        ];
-    }
+			// NOVO
+			'items'           => $items,
+		];
+	}
 
     /**
      * Router da página
