@@ -6,7 +6,21 @@ if (!defined('ABSPATH')) {
 
 class BTEC_Order_Admin
 {
-    private $controller;
+        /**
+     * Controller da Ordem de Serviço
+     */
+    private ?BTEC_Order_Controller $controller = null;
+
+    // restante da classe...
+    
+    private function controller()
+    {
+        if ($this->controller === null) {
+            $this->controller = new BTEC_Order_Controller();
+        }
+    
+        return $this->controller;
+    }
 
     public function init()
     {
@@ -60,7 +74,7 @@ class BTEC_Order_Admin
             'btec_nonce'
         );
 
-        $result = $this->controller->create(
+        $result = $this->controller()->create(
             $this->get_form_data()
         );
 
@@ -89,7 +103,7 @@ class BTEC_Order_Admin
 
         $id = absint($_POST['order_id']);
 
-        $result = $this->controller->update(
+        $result = $this->controller()->update(
             $id,
             $this->get_form_data()
         );
@@ -217,7 +231,7 @@ class BTEC_Order_Admin
 
         if ($id) {
 
-            $order = $this->controller->find($id);
+            $order = $this->controller()->find($id);
 
             if (!$order) {
                 wp_die('Ordem de Serviço não encontrada.');
