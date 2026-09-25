@@ -336,7 +336,57 @@
                 </button>
 
             </p>
+			<?php if ($order) : ?>
 
+				<hr style="margin:32px 0;">
+
+				<h2>Linha do Tempo</h2>
+
+				<div class="btec-timeline">
+
+					<?php if (empty($history)) : ?>
+
+						<p>Nenhum evento registrado.</p>
+
+					<?php else : ?>
+
+						<?php foreach ($history as $event) : ?>
+
+							<div class="timeline-item">
+
+								<div class="timeline-dot type-<?php echo esc_attr($event->event_type); ?>"></div>
+
+								<div class="timeline-content">
+
+									<strong>
+										<?php echo esc_html($event->description); ?>
+									</strong>
+
+									<br>
+
+									<small>
+										<?php
+										echo esc_html(
+											date_i18n(
+												'd/m/Y H:i',
+												strtotime($event->created_at)
+											)
+										);
+										?>
+									</small>
+
+								</div>
+
+							</div>
+
+						<?php endforeach; ?>
+
+					<?php endif; ?>
+
+				</div>
+
+			<?php endif; ?>	
+			
         </form>
 
     </div>
@@ -412,6 +462,52 @@ select{
     }
 
 }
+
+/* ===== Timeline ===== */
+
+.btec-timeline{
+    position:relative;
+    margin-top:20px;
+    padding-left:30px;
+}
+
+.btec-timeline:before{
+    content:'';
+    position:absolute;
+    left:8px;
+    top:0;
+    bottom:0;
+    width:2px;
+    background:#d1d5db;
+}
+
+.timeline-item{
+    position:relative;
+    margin-bottom:22px;
+}
+
+.timeline-dot{
+    position:absolute;
+    left:-30px;
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    border:3px solid #fff;
+    box-shadow:0 0 0 1px #d1d5db;
+}
+
+.timeline-content{
+    background:#f8fafc;
+    border:1px solid #e5e7eb;
+    border-radius:8px;
+    padding:12px 14px;
+}
+
+.type-created{background:#2563eb;}
+.type-status{background:#7c3aed;}
+.type-item{background:#0d9488;}
+.type-diagnosis{background:#f59e0b;}
+.type-solution{background:#16a34a;}
 
 </style>
 

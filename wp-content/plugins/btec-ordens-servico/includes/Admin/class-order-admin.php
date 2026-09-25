@@ -203,32 +203,39 @@ class BTEC_Order_Admin
     /**
      * Formulário
      */
-    private function render_form($id = 0)
-    {
-        global $wpdb;
+	private function render_form($id = 0)
+	{
+		global $wpdb;
 
-        $clients = $wpdb->get_results(
-            "SELECT id, code, name
-             FROM {$wpdb->prefix}btec_clients
-             ORDER BY name"
-        );
+		$clients = $wpdb->get_results(
+			"SELECT id, code, name
+			 FROM {$wpdb->prefix}btec_clients
+			 ORDER BY name"
+		);
 
-        $equipment = BTEC_Order::get_equipment_types();
-        $statuses = BTEC_Order::get_statuses();
+		$equipment = BTEC_Order::get_equipment_types();
+		$statuses  = BTEC_Order::get_statuses();
 
-        $order = null;
+		$order = null;
+		$order_items = [];
+		$history = [];
 
-        if ($id) {
+		if ($id) {
 
-            $order = $this->controller()->find($id);
+			$order = $this->controller()->find($id);
 
-            if (!$order) {
-                wp_die('Ordem de Serviço não encontrada.');
-            }
+			if (!$order) {
+				wp_die('Ordem de Serviço não encontrada.');
+			}
 
-        }
+			$item_repository = new BTEC_Order_Item_Repository();
+			$order_items = $item_repository->get_by_order($id);
 
-        require BTEC_OS_PATH .
-            'templates/order-form.php';
-    }
+			$history_repository = new BTEC_Order_History_Repository();
+			$history = $history_repository->get_by_order($id);
+
+		}
+
+		require BTEC_OS_PATH . 'templates/order-form.php';
+	}
 }

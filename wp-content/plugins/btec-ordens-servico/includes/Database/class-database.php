@@ -65,6 +65,24 @@ class BTEC_Order_Database
             error_log('BTEC ORDER ITEMS: ' . $wpdb->last_error);
         }
 
+		$history_table = $wpdb->prefix . 'btec_order_history';
+
+		$sql_history = "CREATE TABLE IF NOT EXISTS {$history_table} (
+			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+			order_id BIGINT UNSIGNED NOT NULL,
+			event_type VARCHAR(30) NOT NULL,
+			description TEXT NOT NULL,
+			created_by BIGINT UNSIGNED NULL,
+			created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+			PRIMARY KEY (id),
+			KEY idx_order (order_id),
+			KEY idx_event (event_type)
+
+		) {$charset};";
+
+		$wpdb->query($sql_history);
+
         // Registra a sequência OS
         $seq_table = $wpdb->prefix . 'btec_sequences';
 

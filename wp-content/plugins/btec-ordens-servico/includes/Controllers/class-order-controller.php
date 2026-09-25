@@ -7,13 +7,16 @@ if (!defined('ABSPATH')) {
 class BTEC_Order_Controller
 {
     private $repository;
-	
+
 	private $item_repository;
-	
+
+	private $history_repository;
+
     public function __construct()
 	{
 		$this->repository = new BTEC_Order_Repository();
 		$this->item_repository = new BTEC_Order_Item_Repository();
+		$this->history_repository = new BTEC_Order_History_Repository();
 	}
 
     /**
@@ -34,7 +37,19 @@ class BTEC_Order_Controller
             'created_by'      => get_current_user_id(),
         ];
 
-        return $this->repository->create($payload);
+        $order_id = $this->repository->create($payload);
+
+		if ($order_id) {
+
+			$this->history_repository->create(
+				$order_id,
+				'created',
+				'Ordem de Serviço criada.'
+			);
+
+		}
+
+		return $order_id;
     }
 
     /**
@@ -62,6 +77,33 @@ class BTEC_Order_Controller
 
 		$this->repository->update($id, $payload);
 
+		$this->history_repository->create(
+			$id,
+			'status',
+			'Status alterado para: ' .
+			BTEC_Order::get_status_label($payload['status'])
+		);
+
+		if (!empty($payload['diagnosis'])) {
+
+			$this->history_repository->create(
+				$id,
+				'diagnosis',
+				'Diagnóstico atualizado.'
+			);
+
+		}
+
+		if (!empty($payload['solution'])) {
+
+			$this->history_repository->create(
+				$id,
+				'solution',
+				'Solução registrada.'
+			);
+
+		}
+
 		$this->item_repository->delete_by_order($id);
 
 		if (!empty($data['items'])) {
@@ -73,8 +115,14 @@ class BTEC_Order_Controller
 				}
 
 				$this->item_repository->create($id, $item);
-
 			}
+
+			$this->history_repository->create(
+				$id,
+				'item',
+				'Peça adicionada: ' .
+				$item['description']
+			);
 		}
 
 		$wpdb->query('COMMIT');
