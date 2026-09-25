@@ -37,6 +37,7 @@ if (!defined('ABSPATH')) {
                 <th style="width:170px;">Data / Hora</th>
                 <th style="width:120px;">Status</th>
                 <th style="width:170px;">Ações</th>
+                <th style="width:160px;">Ações</th>
             </tr>
 
         </thead>
@@ -96,6 +97,25 @@ if (!defined('ABSPATH')) {
                             <?php echo esc_html($status_label); ?>
                         </span>
                     
+                    </td>
+                    
+                    <td>
+
+                        <?php
+                        $url = wp_nonce_url(
+                            admin_url(
+                                'admin.php?page=btec-agendamentos' .
+                                '&convert_os=' . $appointment->id
+                            ),
+                            'convert_os_' . $appointment->id
+                        );
+                        ?>
+                        
+                        <a href="<?php echo esc_url($url); ?>"
+                           class="button button-small button-primary">
+                           Converter em OS
+                        </a>
+                        
                     </td>
         
                 </tr>

@@ -12,6 +12,10 @@ class BTEC_Appointment_Admin
 			'admin_init',
 			[$this, 'handle_create']
 		);
+		add_action(
+            'admin_init',
+            [$this, 'handle_convert_to_order']
+        );
 	}
 
 	public function handle_create()
@@ -59,7 +63,45 @@ class BTEC_Appointment_Admin
     exit;
 	}
 	
-
+	public function handle_convert_to_order()
+    {
+        if (!is_admin()) {
+            return;
+        }
+    
+        if (!isset($_GET['convert_os'])) {
+            return;
+        }
+    
+        $appointment_id = absint($_GET['convert_os']);
+    
+        check_admin_referer(
+            'convert_os_' . $appointment_id
+        );
+    
+        $controller = new BTEC_Order_Controller();
+    
+        $order_id = $controller->create_from_appointment(
+            $appointment_id
+        );
+                    
+        $repository = new BTEC_Appointment_Repository();
+            
+        $repository->mark_as_converted($appointment_id);
+    
+        if (is_wp_error($order_id)) {
+            wp_die($order_id->get_error_message());
+        }
+    
+        wp_safe_redirect(
+            admin_url(
+                'admin.php?page=btec-ordens-servico&message=created'
+            )
+        );
+    
+        exit;
+    }
+	
     public function render()
     {
         $action = isset($_GET['action'])

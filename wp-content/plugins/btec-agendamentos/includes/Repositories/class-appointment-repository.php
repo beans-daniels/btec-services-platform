@@ -103,6 +103,7 @@ class BTEC_Appointment_Repository
                  INNER JOIN {$clients} c
                     ON c.id = a.client_id
                  WHERE a.company_id = %d
+                    AND a.status <> 'converted'
                  ORDER BY a.scheduled_date ASC,
                           a.scheduled_time ASC",
                 $company_id
@@ -140,6 +141,19 @@ class BTEC_Appointment_Repository
 
         return $wpdb->delete(
             $this->table,
+            ['id' => $id]
+        );
+    }
+    public function mark_as_converted($id)
+    {
+        global $wpdb;
+    
+        return $wpdb->update(
+            $this->table,
+            [
+                'status' => 'converted',
+                'updated_at' => current_time('mysql')
+            ],
             ['id' => $id]
         );
     }

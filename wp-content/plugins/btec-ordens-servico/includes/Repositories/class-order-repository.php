@@ -13,49 +13,50 @@ class BTEC_Order_Repository
         $this->table = $wpdb->prefix.'btec_orders';
     }
 
-	public function create($data)
-	{
-		global $wpdb;
-
-		$number = BTEC_Sequence_Manager::next(
-			$data['company_id'],
-			'orders'
-		);
-
-		if (!$number) {
-			return new WP_Error(
-				'sequence_error',
-				'Não foi possível gerar o número da OS.'
-			);
-		}
-
-		$result = $wpdb->insert(
-			$this->table,
-			[
-				'company_id'      => $data['company_id'],
-				'client_id'       => $data['client_id'],
-				'number'          => $number,
-				'equipment_type'  => $data['equipment_type'],
-				'brand'           => $data['brand'],
-				'model'           => $data['model'],
-				'serial_number'   => $data['serial_number'],
-				'reported_defect' => $data['reported_defect'],
-				'status'          => 'open',
-				'created_by'      => get_current_user_id(),
-				'created_at'      => current_time('mysql'),
-				'updated_at'      => current_time('mysql'),
-			]
-		);
-
-		if ($result === false) {
-			return new WP_Error(
-				'db_error',
-				$wpdb->last_error
-			);
-		}
-
-		return $wpdb->insert_id;
-	}
+    public function create($data)
+    {
+        global $wpdb;
+    
+        $number = BTEC_Sequence_Manager::next(
+            $data['company_id'],
+            'orders'
+        );
+    
+        if (!$number) {
+            return new WP_Error(
+                'sequence_error',
+                'Não foi possível gerar o número da OS.'
+            );
+        }
+    
+        $result = $wpdb->insert(
+            $this->table,
+            [
+                'company_id'      => $data['company_id'],
+                'appointment_id' => $data['appointment_id'] ?? null,
+                'client_id'       => $data['client_id'],
+                'number'          => $number,
+                'equipment_type'  => $data['equipment_type'],
+                'brand'           => $data['brand'],
+                'model'           => $data['model'],
+                'serial_number'   => $data['serial_number'],
+                'reported_defect' => $data['reported_defect'],
+                'status'          => 'open',
+                'created_by'      => get_current_user_id(),
+                'created_at'      => current_time('mysql'),
+                'updated_at'      => current_time('mysql'),
+            ]
+        );
+    
+        if ($result === false) {
+            return new WP_Error(
+                'db_error',
+                $wpdb->last_error
+            );
+        }
+    
+        return $wpdb->insert_id;
+    }
 
 	public function get_all($company_id)
 	{
